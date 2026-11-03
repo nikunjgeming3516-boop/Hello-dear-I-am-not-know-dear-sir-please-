@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SastaSMS - Premium OTP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#0b1120', card: '#1e293b', primary: '#8b5cf6', secondary: '#3b82f6', success: '#10b981', danger: '#ef4444'
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #0b1120; color: #f8fafc; overflow-x: hidden; font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .bottom-nav { box-shadow: 0 -4px 20px rgba(0,0,0,0.5); }
+        .bg-gradient-purple { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+        .toggle-checkbox:checked { right: 0; border-color: #8b5cf6; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #8b5cf6; }
+    </style>
+</head>
+<body class="h-screen flex flex-col md:flex-row overflow-hidden">
+
+    <!-- AUTH SCREEN -->
+    <div id="auth-screen" class="h-full w-full flex items-center justify-center p-4 relative overflow-y-auto hide-scrollbar bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-blend-overlay">
+        <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#0b1120] via-[#1a1b3a] to-[#0b1120] opacity-90 z-0"></div>
+        <div class="glass rounded-3xl p-8 w-full max-w-md shadow-2xl relative z-10 my-8">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-gradient-purple rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-500/30"><i class="fa-solid fa-bolt text-2xl text-white"></i></div>
+                <h2 class="text-2xl font-bold text-white tracking-wide">SastaSMS</h2>
+            </div>
+
+            <!-- Login -->
+            <div id="login-view">
+                <h3 class="text-2xl font-bold text-white mb-1">Welcome back</h3>
+                <p class="text-gray-400 text-sm mb-6">Login to your account</p>
+                <form onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+                        <input type="email" id="loginEmail" required class="w-full bg-[#0f172a] border border-gray-700 rounded-xl py-3 px-4 text-white focus:border-primary outline-none" placeholder="you@example.com">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                        <input type="password" id="loginPass" required class="w-full bg-[#0f172a] border border-gray-700 rounded-xl py-3 px-4 text-white focus:border-primary outline-none" placeholder="Enter your password">
+                    </div>
+                    <button type="submit" class="w-full bg-primary hover:bg-purple-600 text-white font-bold py-3 rounded-xl transition shadow-lg mt-4">Login</button>
+                </form>
+                <div class="mt-6 text-center text-sm text-gray-400">Don't have an account? <a href="#" onclick="toggleAuth('register')" class="text-primary font-semibold hover:underline">Sign up free</a></div>
+            </div>
+
+            <!-- Register -->
+            <div id="register-view" class="hidden">
+                <h3 class="text-2xl font-bold text-white mb-1">Create account</h3>
+                <p class="text-gray-400 text-sm mb-6">Get virtual phone numbers</p>
+                <form onsubmit="handleRegister(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
+                        <input type="text" id="regName" required class="w-full bg-[#0f172a] border border-gray-700 rounded-xl py-3 px-4 text-white focus:border-primary outline-none" placeholder="Your name">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                        <input type="email" id="regEmail" required class="w-full bg-[#0f172a] border border-gray-700 rounded-xl py-3 px-4 text-white focus:border-primary outline-none" placeholder="you@example.com">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                        <input type="password" id="regPass" required class="w-full bg-[#0f172a] border border-gray-700 rounded-xl py-3 px-4 text-white focus:border-primary outline-none" placeholder="Create password">
+                    </div>
+                    <button type="submit" class="w-full bg-primary hover:bg-purple-600 text-white font-bold py-3 rounded-xl transition shadow-lg mt-4">Create Account</button>
+                </form>
+                <div class="mt-6 text-center text-sm text-gray-400">Already have an account? <a href="#" onclick="toggleAuth('login')" class="text-primary font-semibold hover:underline">Login</a></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="app-screen" class="hidden h-full w-full flex flex-col md:flex-row relative">
+        <!-- Sidebar Desktop -->
+        <aside class="hidden md:flex w-64 glass flex-col border-r border-gray-800 z-20">
+            <div class="p-6 flex items-center gap-3 text-xl font-bold text-white border-b border-gray-800">
+                <div class="w-8 h-8 bg-gradient-purple rounded-lg flex items-center justify-center"><i class="fa-solid fa-bolt text-white text-sm"></i></div> SastaSMS
+            </div>
+            <nav class="flex-1 p-4 space-y-2">
+                <a href="#" onclick="navTo('services')" id="nav-services" class="flex items-center gap-3 p-3 bg-primary/10 text-primary rounded-xl font-medium transition-all"><i class="fa-solid fa-layer-group w-5"></i> Services</a>
+                <a href="#" onclick="navTo('history')" id="nav-history" class="flex items-center gap-3 p-3 text-gray-400 hover:bg-gray-800/50 rounded-xl transition-all"><i class="fa-solid fa-clock-rotate-left w-5"></i> History</a>
+                <a href="#" onclick="navTo('wallet')" id="nav-wallet" class="flex items-center gap-3 p-3 text-gray-400 hover:bg-gray-800/50 rounded-xl transition-all"><i class="fa-solid fa-wallet w-5"></i> Wallet</a>
+            </nav>
+            <div class="p-4 border-t border-gray-800">
+                <button onclick="handleLogout()" class="flex items-center justify-center gap-2 w-full text-red-400 hover:bg-red-500/20 p-3 rounded-xl transition"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+            </div>
+        </aside>
+
+        <!-- Content -->
+        <main class="flex-1 flex flex-col h-full overflow-hidden relative">
+            <header class="glass px-4 py-3 md:px-8 border-b border-gray-800 flex justify-between items-center z-10">
+                <div class="flex items-center gap-2 md:hidden">
+                    <div class="w-8 h-8 bg-gradient-purple rounded-lg flex items-center justify-center"><i class="fa-solid fa-bolt text-white text-sm"></i></div>
+                    <span class="font-bold text-white text-lg">SastaSMS</span>
+                </div>
+                <h1 class="hidden md:block text-xl font-semibold text-white" id="pageTitle">Services</h1>
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2 bg-gray-800/80 px-3 py-1.5 rounded-lg border border-gray-700">
+                        <span class="font-bold text-green-400" id="headerBalance">₹0.00</span>
+                        <button onclick="navTo('wallet')" class="w-6 h-6 bg-primary rounded flex items-center justify-center text-white"><i class="fa-solid fa-plus text-xs"></i></button>
+                    </div>
+                    <div class="w-9 h-9 rounded-full bg-gradient-purple flex items-center justify-center text-white font-bold" id="headerAvatar">U</div>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto hide-scrollbar p-4 md:p-8 pb-24 md:pb-8 relative z-0">
+                
+                <!-- SERVICES -->
+                <section id="sec-services" class="space-y-4 animate-fade-in">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-gray-500"></i>
+                        <input type="text" id="searchService" onkeyup="filterServices()" placeholder="Search services..." class="w-full bg-[#0f172a] border border-gray-700 rounded-xl py-3 pl-11 pr-4 text-white focus:border-primary outline-none">
+                    </div>
+                    <div class="space-y-3" id="serviceList">
+                        <div class="text-center py-10 text-gray-400"><i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i><br>Loading Services...</div>
+                    </div>
+                </section>
+
+                <!-- HISTORY -->
+                <section id="sec-history" class="hidden space-y-4 animate-fade-in">
+                    <h2 class="text-xl font-bold text-white mb-4">Order History</h2>
+                    <div class="space-y-3" id="historyList">
+                        <div class="text-center py-12 text-gray-500">No orders yet.</div>
+                    </div>
+                </section>
+
+                <!-- WALLET -->
+                <section id="sec-wallet" class="hidden space-y-6 animate-fade-in">
+                    <h2 class="text-xl font-bold text-white mb-4">Wallet</h2>
+                    <div class="glass rounded-2xl p-6 text-center border-t-4 border-primary">
+                        <p class="text-gray-400 mb-2">Current Balance</p>
+                        <h3 class="text-4xl font-bold text-white mb-6" id="walletBalance">₹0.00</h3>
+                        <button onclick="openDepositModal()" class="bg-primary hover:bg-purple-600 text-white font-bold px-6 py-3 rounded-xl w-full transition"><i class="fa-solid fa-plus mr-2"></i> Add Funds</button>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- Mobile Nav -->
+            <nav class="md:hidden fixed bottom-0 left-0 w-full glass border-t border-gray-800 flex justify-around items-center py-2 pb-safe z-50">
+                <a href="#" onclick="navTo('services')" id="mob-nav-services" class="flex flex-col items-center p-2 text-primary"><i class="fa-solid fa-layer-group text-lg"></i><span class="text-[10px]">Services</span></a>
+                <a href="#" onclick="navTo('history')" id="mob-nav-history" class="flex flex-col items-center p-2 text-gray-400"><i class="fa-solid fa-clock-rotate-left text-lg"></i><span class="text-[10px]">History</span></a>
+                <a href="#" onclick="navTo('wallet')" id="mob-nav-wallet" class="flex flex-col items-center p-2 text-gray-400"><i class="fa-solid fa-wallet text-lg"></i><span class="text-[10px]">Wallet</span></a>
+            </nav>
+        </main>
+    </div>
+
+    <!-- DEPOSIT MODAL -->
+    <div id="depositModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="glass rounded-3xl p-6 w-full max-w-sm relative">
+            <button onclick="closeDepositModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h3 class="text-xl font-bold text-white mb-4 text-center">Add Funds</h3>
+            <div class="space-y-4">
+                <div class="relative">
+                    <span class="absolute left-4 top-3.5 text-gray-500">₹</span>
+                    <input type="number" id="depositAmount" placeholder="Min 10" class="w-full bg-dark border border-gray-700 rounded-xl py-3 pl-8 pr-4 text-white text-lg font-bold outline-none focus:border-primary">
+                </div>
+                <button onclick="generateDepositQR()" class="w-full bg-primary hover:bg-purple-600 text-white font-bold py-3 rounded-xl transition">Generate UPI QR</button>
+                
+                <div id="qrContainer" class="hidden text-center pt-4 border-t border-gray-800">
+                    <img id="qrImage" src="" class="w-40 h-40 mx-auto rounded-lg bg-white p-2 mb-3">
+                    <button onclick="checkPaymentStatus()" class="w-full bg-success hover:bg-green-600 text-white font-bold py-2 rounded-xl transition">Verify Payment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let currentUser = null;
+        let allServices = [];
+        let currentTxnId = "";
+
+        // --- AUTH (LocalStorage for demo) ---
+        window.onload = () => {
+            const user = localStorage.getItem('sasta_user');
+            if(user) { currentUser = JSON.parse(user); loadApp(); }
+        };
+
+        function toggleAuth(view) {
+            if(view === 'register') {
+                document.getElementById('login-view').classList.add('hidden');
+                document.getElementById('register-view').classList.remove('hidden');
+            } else {
+                document.getElementById('register-view').classList.add('hidden');
+                document.getElementById('login-view').classList.remove('hidden');
+            }
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            let users = JSON.parse(localStorage.getItem('sasta_users')) || [];
+            const email = document.getElementById('regEmail').value;
+            if(users.find(u => u.email === email)) return Swal.fire('Error', 'Email exists', 'error');
+            
+            users.push({ id: 'U'+Date.now(), name: document.getElementById('regName').value, email, pass: document.getElementById('regPass').value, balance: 0 });
+            localStorage.setItem('sasta_users', JSON.stringify(users));
+            Swal.fire('Success', 'Account created', 'success');
+            toggleAuth('login');
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            let users = JSON.parse(localStorage.getItem('sasta_users')) || [];
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPass').value;
+            const user = users.find(u => u.email === email && u.pass === pass);
+            
+            if(user) {
+                currentUser = user;
+                localStorage.setItem('sasta_user', JSON.stringify(currentUser));
+                loadApp();
+            } else Swal.fire('Error', 'Invalid credentials', 'error');
+        }
+
+        function handleLogout() { localStorage.removeItem('sasta_user'); location.reload(); }
+
+        // --- APP LOAD ---
+        function loadApp() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app-screen').classList.remove('hidden');
+            document.getElementById('headerAvatar').innerText = currentUser.name.charAt(0).toUpperCase();
+            updateBalanceUI();
+            navTo('services');
+            fetchLiveServices(); // Fetch from Netlify Function
+        }
+
+        function updateBalanceUI() {
+            document.getElementById('headerBalance').innerText = '₹' + currentUser.balance.toFixed(2);
+            document.getElementById('walletBalance').innerText = '₹' + currentUser.balance.toFixed(2);
+            // Sync to local DB
+            let users = JSON.parse(localStorage.getItem('sasta_users')) || [];
+            let idx = users.findIndex(u => u.id === currentUser.id);
+            if(idx > -1) { users[idx].balance = currentUser.balance; localStorage.setItem('sasta_users', JSON.stringify(users)); }
+            localStorage.setItem('sasta_user', JSON.stringify(currentUser));
+        }
+
+        function navTo(tab) {
+            document.querySelectorAll('main section').forEach(el => el.classList.add('hidden'));
+            document.getElementById('sec-' + tab).classList.remove('hidden');
+            document.getElementById('pageTitle').innerText = tab.toUpperCase();
+            
+            document.querySelectorAll('aside nav a, nav a').forEach(el => { el.classList.remove('text-primary', 'bg-primary/10'); el.classList.add('text-gray-400'); });
+            const nav1 = document.getElementById('nav-' + tab); if(nav1) nav1.classList.add('text-primary', 'bg-primary/10');
+            const nav2 = document.getElementById('mob-nav-' + tab); if(nav2) nav2.classList.add('text-primary');
+
+            if(tab === 'history') loadHistory();
+        }
+
+        // --- FETCH REAL SERVICES FROM BACKEND ---
+        async function fetchLiveServices() {
+            try {
+                // Calling Netlify Serverless Function
+                const res = await fetch('/.netlify/functions/api/get-services');
+                const data = await res.json();
+                
+                if(data.success) {
+                    allServices = data.services;
+                    renderServices(allServices);
+                } else {
+                    document.getElementById('serviceList').innerHTML = `<p class="text-red-400">Failed to load services: ${data.message}</p>`;
+                }
+            } catch (e) {
+                document.getElementById('serviceList').innerHTML = `<p class="text-red-400">Network Error. Make sure Netlify functions are deployed.</p>`;
+            }
+        }
+
+        function renderServices(services) {
+            const list = document.getElementById('serviceList');
+            list.innerHTML = '';
+            if(services.length === 0) return list.innerHTML = '<p class="text-gray-500 text-center">No services found.</p>';
+            
+            services.forEach(srv => {
+                list.innerHTML += `
+                    <div class="glass rounded-xl p-4 flex items-center justify-between hover:bg-gray-800/50 transition border border-gray-700/50">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-xl">
+                                <i class="fa-solid fa-mobile-screen"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white">${srv.name}</h4>
+                                <p class="text-sm text-gray-400">Price: ₹${srv.price}</p>
+                            </div>
+                        </div>
+                        <button onclick="buyNumber('${srv.service_code}', ${srv.price}, '${srv.name}')" class="bg-gray-800 hover:bg-primary text-white font-semibold px-4 py-2 rounded-lg text-sm transition border border-gray-700">Buy</button>
+                    </div>`;
+            });
+        }
+
+        function filterServices() {
+            const q = document.getElementById('searchService').value.toLowerCase();
+            renderServices(allServices.filter(s => s.name.toLowerCase().includes(q)));
+        }
+
+        // --- BUY NUMBER VIA BACKEND ---
+        async function buyNumber(code, price, name) {
+            if(currentUser.balance < price) return Swal.fire('Low Balance', 'Please add funds.', 'error').then(() => navTo('wallet'));
+
+            Swal.fire({ title: 'Processing...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            try {
+                const res = await fetch('/.netlify/functions/api/buy-number', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ service_code: code })
+                });
+                const data = await res.json();
+
+                if(data.success) {
+                    currentUser.balance -= price;
+                    updateBalanceUI();
+
+                    // Save History LocalStorage (For UI)
+                    let hist = JSON.parse(localStorage.getItem('sasta_history')) || [];
+                    hist.push({ user: currentUser.id, number: data.number, otp: "Waiting...", service: name, status: "Active", date: new Date().toLocaleString() });
+                    localStorage.setItem('sasta_history', JSON.stringify(hist));
+
+                    Swal.fire('Success!', `Number: <b>${data.number}</b><br>Wait for OTP in History.`, 'success').then(() => navTo('history'));
+                } else {
+                    Swal.fire('Failed', data.message, 'error');
+                }
+            } catch (e) { Swal.fire('Error', 'Server issue', 'error'); }
+        }
+
+        // --- HISTORY ---
+        function loadHistory() {
+            let hist = JSON.parse(localStorage.getItem('sasta_history')) || [];
+            let my = hist.filter(h => h.user === currentUser.id).reverse();
+            const list = document.getElementById('historyList');
+            
+            if(my.length === 0) return list.innerHTML = '<div class="text-center py-10 text-gray-500">No orders yet.</div>';
+            
+            list.innerHTML = '';
+            my.forEach(o => {
+                list.innerHTML += `
+                    <div class="glass rounded-xl p-4 border border-gray-700/50 mb-3">
+                        <div class="flex justify-between mb-2">
+                            <span class="font-bold text-white">${o.service}</span>
+                            <span class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">${o.status}</span>
+                        </div>
+                        <div class="bg-dark rounded-lg p-3 grid grid-cols-2 text-sm">
+                            <div><span class="text-gray-500 text-xs block">Number</span> <span class="text-white">${o.number}</span></div>
+                            <div><span class="text-gray-500 text-xs block">OTP</span> <span class="text-primary font-mono">${o.otp}</span></div>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        // --- DEPOSIT & PAYMENT VIA BACKEND ---
+        function openDepositModal() {
+            document.getElementById('depositModal').classList.remove('hidden');
+            document.getElementById('depositModal').classList.add('flex');
+            document.getElementById('qrContainer').classList.add('hidden');
+        }
+        function closeDepositModal() {
+            document.getElementById('depositModal').classList.add('hidden');
+            document.getElementById('depositModal').classList.remove('flex');
+        }
+
+        async function generateDepositQR() {
+            const amt = document.getElementById('depositAmount').value;
+            if(amt < 10) return Swal.fire('Error', 'Min ₹10', 'error');
+
+            Swal.fire({ title: 'Generating QR...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            try {
+                const res = await fetch(`/.netlify/functions/api/create-payment?amount=${amt}`);
+                const data = await res.json();
+                
+                if(data.success) {
+                    currentTxnId = data.txnid;
+                    document.getElementById('qrImage').src = data.qr_url;
+                    document.getElementById('qrContainer').classList.remove('hidden');
+                    Swal.close();
+                } else Swal.fire('Error', 'Failed to generate QR', 'error');
+            } catch (e) { Swal.fire('Error', 'API error', 'error'); }
+        }
+
+        async function checkPaymentStatus() {
+            Swal.fire({ title: 'Verifying...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            const amt = parseFloat(document.getElementById('depositAmount').value);
+            
+            try {
+                const res = await fetch(`/.netlify/functions/api/check-payment?txnid=${currentTxnId}&amount=${amt}`);
+                const data = await res.json();
+
+                if(data.success) {
+                    currentUser.balance += amt;
+                    updateBalanceUI();
+                    closeDepositModal();
+                    Swal.fire('Success', `₹${amt} added to wallet.`, 'success');
+                } else {
+                    Swal.fire('Pending', 'Payment not received yet.', 'info');
+                }
+            } catch (e) { Swal.fire('Error', 'Verification failed', 'error'); }
+        }
+    </script>
+</body>
+</html>
